@@ -1,72 +1,9 @@
 <?php
 
-// namespace App\Livewire;
-
-// use Livewire\Component;
-
-// class EmotieForm extends Component
-// {
-//     public $huidigeStap = 1;
-//     public $naam;
-//     public $leeftijd;
-//     public $geslacht;
-//     public $emotioneleStaat;
-
-//     public $vragen = [];
-//     public $antwoorden = [];
-
-//     protected $alleVragen = [
-//         "Je zit in een park op een zonnige dag. Kinderen beginnen te schreeuwen en rennen rond. Blijf je of ga je weg?",
-//         "Wat voel je als je helemaal alleen bent in een stille kamer?",
-//         "Kies: stilte, regen of storm — en waarom?",
-//         "Krijg je energie van drukte of liever van rust?",
-//         "Wat is je eerste reactie bij onverwachte veranderingen?",
-//     ];
-
-//     public function mount()
-//     {
-//         $this->vragen = collect($this->alleVragen)->shuffle()->take(3)->values()->all();
-//     }
-
-
-//     public function submit()
-//     {
-//         if ($this->huidigeStap === 1) {
-//             $this->huidigeStap = 2;
-//         } elseif ($this->huidigeStap === 2) {
-//             $score = 0;
-
-//             foreach ($this->antwoorden as $antwoord) {
-//                 $antwoord = strtolower($antwoord);
-//                 if (str_contains($antwoord, 'rust') || str_contains($antwoord, 'stilte')) {
-//                     $score += 1;
-//                 }
-//                 if (str_contains($antwoord, 'weg') || str_contains($antwoord, 'drukte')) {
-//                     $score -= 1;
-//                 }
-//             }
-
-//             $emotie = 'natural';
-//             if ($score > 1) $emotie = 'happy';
-//             if ($score < 0) $emotie = 'sad';
-
-//             session()->put('emotie', $emotie);
-//             return redirect()->to('/result');
-//         }
-//     }
-
-
-
-//     public function render()
-//     {
-//         return view('livewire.emotie-form');
-//     }
-// }
-
-
 namespace App\Livewire;
 
 use Livewire\Component;
+use App\Models\EmotionResult;
 
 class EmotionForm extends Component
 {
@@ -96,25 +33,64 @@ class EmotionForm extends Component
     {
         if ($this->currentStep === 1) {
             $this->currentStep = 2;
-        } elseif ($this->currentStep === 2) {
-            $score = 0;
+            return;
+        }
+
+        if ($this->currentStep === 2) {
+            // Initialize score map
+            $scoreMap = [
+                'happy' => 0,
+                'sad' => 0,
+                'calm' => 0,
+                'intense' => 0,
+                'ambient' => 0,
+            ];
 
             foreach ($this->answers as $answer) {
                 $answer = strtolower($answer);
-                if (str_contains($answer, 'calm') || str_contains($answer, 'silence')) {
-                    $score += 1;
+
+                if (in_array($answer, ['adapt', 'happy'])) {
+                    $scoreMap['happy'] += 1;
                 }
-                if (str_contains($answer, 'leave') || str_contains($answer, 'busy')) {
-                    $score -= 1;
+                if (in_array($answer, ['leave', 'anxious'])) {
+                    $scoreMap['sad'] += 1;
+                }
+                if (in_array($answer, ['stay', 'peaceful', 'silence', 'calm'])) {
+                    $scoreMap['calm'] += 1;
+                }
+                if (in_array($answer, ['storm', 'panic', 'busy'])) {
+                    $scoreMap['intense'] += 1;
+                }
+                if ($answer === 'rain') {
+                    $scoreMap['ambient'] += 1;
                 }
             }
 
-            $emotion = 'neutral';
-            if ($score > 1) $emotion = 'happy';
-            if ($score < 0) $emotion = 'sad';
+            // Include initial emotional state as bonus weight
+            if (!empty($this->emotionalState) && isset($scoreMap[$this->emotionalState])) {
+                $scoreMap[strtolower($this->emotionalState)] += 1;
+            }
 
-            session()->put('emotion', $emotion);
-            return redirect()->to('/result');
+            // Sort by score and get top 2 or 3 dominant emotions
+            arsort($scoreMap);
+            $topEmotions = array_slice(array_keys($scoreMap), 0, 3);
+
+            // Convert to final mood string
+            $emotionQuery = implode(' ', $topEmotions);
+
+            session()->put('emotion', $emotionQuery);
+
+            // Save result
+            $result = EmotionResult::create([
+                'name' => $this->name,
+                'age' => $this->age,
+                'gender' => $this->gender,
+                'emotional_state' => $this->emotionalState,
+                'answers' => json_encode($this->answers),
+                'final_emotion' => $emotionQuery,
+            ]);
+
+            return redirect()->to('/report/' . $result->id);
         }
     }
 

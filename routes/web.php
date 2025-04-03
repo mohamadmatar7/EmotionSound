@@ -2,6 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use App\Http\Controllers\MusicController;
+use App\Models\EmotionResult;
+
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -38,8 +42,14 @@ Route::post('/chat-reply', function (Request $request) {
         $response = "Alright, here's something with stronger vibes.";
     }
 
-    return redirect('/result')
-        ->with('show_chat', true)
-        ->with('chat_response', $response)
-        ->with('new_emotion', $newEmotion);
+    return redirect('/music/' . $newEmotion)
+        ->with('chat_response', $response);
+});
+
+
+Route::get('/music/{emotion}', [MusicController::class, 'fetch']);
+
+Route::get('/report/{id}', function ($id) {
+    $result = EmotionResult::findOrFail($id);
+    return view('report', compact('result'));
 });

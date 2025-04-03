@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'freesound' => [
+        'key' => env('FREESOUND_API_KEY'),
+    ],
+
 ];
