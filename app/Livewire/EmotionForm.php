@@ -65,7 +65,7 @@ class EmotionForm extends Component
         }
 
         if ($this->currentStep === 2) {
-            // ❗ Reset alle errors eerst om te voorkomen dat oude blijven hangen
+
             $this->resetErrorBag();
 
             // Check of ALLE antwoorden zijn ingevuld
@@ -75,12 +75,10 @@ class EmotionForm extends Component
                 }
             }
 
-            // Als er fouten zijn, stop de submit
             if ($this->getErrorBag()->isNotEmpty()) {
                 return;
             }
 
-            // 👉 Analyse & opslaan
             $scoreMap = [
                 'happy' => 0,
                 'sad' => 0,

@@ -5,7 +5,7 @@
 
     @if(isset($preview))
         <p class="mb-2 font-semibold text-white">Now playing: {{ $name }}</p>
-        <audio controls autoplay class="mb-6 text-white">
+        <audio controls autoplay class="mb-6 text-white ">
             <source src="{{ $preview }}" type="audio/mpeg">
             Your browser does not support the audio tag.
         </audio>

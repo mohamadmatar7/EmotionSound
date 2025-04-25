@@ -9,32 +9,11 @@ class MusicController extends Controller
 {
     public function fetch($emotion)
     {
-        $emotionTags = explode(' ', urldecode($emotion));
+        $query = urldecode($emotion);
 
-        // Emotion to sound search term mapping
-        $searchMap = [
-            'happy' => ['uplifting', 'bright', 'cheerful', 'melody'],
-            'sad' => ['melancholy', 'slow', 'minor', 'soft piano'],
-            'calm' => ['relaxing', 'ambient', 'peaceful', 'gentle'],
-            'intense' => ['epic', 'dramatic', 'loud', 'cinematic'],
-            'ambient' => ['texture', 'nature', 'background', 'atmosphere'],
-        ];
-
-        // Build final query terms
-        $keywords = [];
-        foreach ($emotionTags as $tag) {
-            if (isset($searchMap[$tag])) {
-                $keywords = array_merge($keywords, $searchMap[$tag]);
-            }
-        }
-
-        // Remove duplicates and prepare final search string
-        $query = implode(' ', array_unique($keywords));
-
-        // Search Freesound
         $response = Http::get('https://freesound.org/apiv2/search/text/', [
             'query' => $query,
-            'filter' => 'duration:[30 TO 90] license:"Creative Commons 0"',
+            'filter' => 'duration:[50 TO 60]',
             'sort' => 'score',
             'fields' => 'previews,name,url,duration',
             'page_size' => 1,
@@ -43,6 +22,7 @@ class MusicController extends Controller
 
         $data = $response->json();
 
+        // Default values
         $preview = null;
         $name = null;
         $error = null;
@@ -51,13 +31,12 @@ class MusicController extends Controller
             $preview = $data['results'][0]['previews']['preview-hq-mp3'] ?? null;
             $name = $data['results'][0]['name'] ?? 'Unknown';
         } else {
-            // Fallback: use just the first emotion tag
-            $fallbackTag = $emotionTags[0] ?? 'calm';
-            $fallbackQuery = implode(' ', $searchMap[$fallbackTag] ?? [$fallbackTag]);
+            // Try fallback: only first mood word
+            $firstMood = explode(' ', $query)[0];
 
             $fallback = Http::get('https://freesound.org/apiv2/search/text/', [
-                'query' => $fallbackQuery,
-                'filter' => 'duration:[30 TO 90] license:"Creative Commons 0"',
+                'query' => $firstMood,
+                'filter' => 'duration:[40 TO 60]',
                 'sort' => 'score',
                 'fields' => 'previews,name,url,duration',
                 'page_size' => 1,
@@ -67,7 +46,7 @@ class MusicController extends Controller
             if (!empty($fallback['results'])) {
                 $preview = $fallback['results'][0]['previews']['preview-hq-mp3'] ?? null;
                 $name = $fallback['results'][0]['name'] ?? 'Unknown';
-                $emotion = ucfirst($fallbackTag);
+                $emotion = $firstMood; // update for the view
             } else {
                 $error = "No sound found for this mood.";
             }
