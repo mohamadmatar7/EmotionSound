@@ -1,9 +1,9 @@
 <x-layouts.app>
-    <h1 class="text-2xl font-bold mb-4">Music for emotion: <span class="capitalize text-blue-600">{{ $emotion }}</span></h1>
+    <h1 class="text-2xl font-bold mb-4 text-white">Music for emotion: <span class="capitalize text-blue-600">{{ $emotion }}</span></h1>
 
     @if(isset($preview))
-        <p class="mb-2 font-semibold">Track: {{ $name }}</p>
-        <audio controls class="mb-6">
+        <p class="mb-2 font-semibold text-white">Track: {{ $name }}</p>
+        <audio controls class="mb-6 text-white">
             <source src="{{ $preview }}" type="audio/mpeg">
             Your browser does not support the audio tag.
         </audio>

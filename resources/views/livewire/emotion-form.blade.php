@@ -1,70 +1,82 @@
-<div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md mt-10">
-    <h2 class="text-2xl font-bold mb-6 text-center">Emotion Sound - Step {{ $currentStep }}</h2>
+<div class="w-full mx-auto bg-white/10 backdrop-blur-lg text-white p-10 rounded-2xl shadow-2xl mt-2 space-y-4 text-lg">
 
-    {{-- STEP 1: Personal Info --}}
+    {{-- Introductie tekst --}}
+    <div class="text-center space-y-2">
+        <h1 class="text-4xl font-extrabold text-white drop-shadow-md">Welcome to Emotion Sound</h1>
+        <p class="text-white/80 text-lg max-w-2xl mx-auto">
+            This project helps you discover music based on your emotions. Answer a few short questions and we’ll generate a unique sound experience tailored to your mood.
+        </p>
+    </div>
+
+    {{-- Step Title --}}
+    <h2 class="text-3xl font-bold text-center tracking-wide flex items-center justify-center gap-2 mt-6">
+        🎧 Step {{ $currentStep }}
+    </h2>
+
+    {{-- STEP 1 --}}
     @if($currentStep === 1)
-    <div class="space-y-4">
-        <input type="text" wire:model="name" placeholder="Name"
-            class="w-full px-4 py-2 border rounded" />
+        <div class="space-y-5">
+            {{-- Name --}}
+            <div>
+                <input type="text" wire:model="name" placeholder="Name"
+                    class="w-full px-4 py-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-white/20 focus:ring-2 focus:ring-pink-400 focus:outline-none" />
+                @error('name') <p class="text-pink-400 text-sm mt-1">{{ $message }}</p> @enderror
+            </div>
 
-        <input type="number" wire:model="age" placeholder="Age"
-            class="w-full px-4 py-2 border rounded" />
+            {{-- Age --}}
+            <div>
+                <input type="number" wire:model="age" placeholder="Age" min="6" max="100"
+                    class="w-full px-4 py-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-white/20 focus:ring-2 focus:ring-pink-400 focus:outline-none" />
+                @error('age') <p class="text-pink-400 text-sm mt-1">{{ $message }}</p> @enderror
+            </div>
 
-        <select wire:model="gender" class="w-full px-4 py-2 border rounded">
-            <option value="">Select gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
-        </select>
+            {{-- Gender --}}
+            <div>
+                <x-dropdown label="Select gender" model="gender" :options="['male' => 'Male', 'female' => 'Female', 'other' => 'Other']" />
+                @error('gender') <p class="text-pink-400 text-sm mt-1">{{ $message }}</p> @enderror
+            </div>
 
-        <select wire:model="emotionalState" class="w-full px-4 py-2 border rounded">
-            <option value="">How are you feeling right now?</option>
-            <option value="happy">Happy</option>
-            <option value="sad">Sad</option>
-            <option value="calm">Calm</option>
-            <option value="angry">Angry</option>
-        </select>
-    </div>
-    @endif
-
-    {{-- STEP 2: Questions --}}
-    @if($currentStep === 2)
-    <div class="mt-4 space-y-4">
-        <h3 class="text-lg font-semibold mb-2">Answer these questions:</h3>
-
-        @foreach($questions as $index => $question)
-        <div>
-            <label class="block font-medium mb-1">{{ $question }}</label>
-            <select wire:model="answers.{{ $index }}" class="w-full px-4 py-2 border rounded">
-                <option value="">Choose an answer</option>
-                @if(str_contains($question, 'park'))
-                <option value="stay">I would stay</option>
-                <option value="leave">I would leave</option>
-                @elseif(str_contains($question, 'silent room'))
-                <option value="peaceful">Peaceful</option>
-                <option value="anxious">Anxious</option>
-                @elseif(str_contains($question, 'silence, rain, or storm'))
-                <option value="silence">Silence</option>
-                <option value="rain">Rain</option>
-                <option value="storm">Storm</option>
-                @elseif(str_contains($question, 'busy environments'))
-                <option value="busy">Busy environments</option>
-                <option value="calm">Calmness</option>
-                @elseif(str_contains($question, 'unexpected changes'))
-                <option value="adapt">I adapt quickly</option>
-                <option value="panic">I feel stressed</option>
-                @endif
-            </select>
-
+            {{-- Emotion --}}
+            <div>
+                <x-dropdown label="How are you feeling right now?" model="emotionalState" :options="[
+                    'happy' => 'Happy',
+                    'sad' => 'Sad',
+                    'calm' => 'Calm',
+                    'angry' => 'Angry',
+                ]" />
+                @error('emotionalState') <p class="text-pink-400 text-sm mt-1">{{ $message }}</p> @enderror
+            </div>
         </div>
-        @endforeach
-    </div>
     @endif
 
-    {{-- Button at the bottom --}}
-    <div class="mt-6 text-center">
+    {{-- STEP 2 --}}
+    @if($currentStep === 2)
+        <div class="space-y-6">
+            <h3 class="text-2xl font-semibold text-pink-400">Answer these questions:</h3>
+    
+            @foreach($questions as $index => $q)
+                <div class="space-y-1">
+                    <label class="block font-medium text-white/80 text-base">
+                        {{ $q['text'] }}
+                    </label>
+                    <x-dropdown
+                        label="Select an answer"
+                        model="answers.{{ $index }}"
+                        :options="$q['options']"
+                    />
+                    @error("answers.$index")
+                        <p class="text-pink-400 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+            @endforeach
+        </div>
+    @endif
+    
+
+    {{-- Submit --}}
+    <div class="text-center pt-4">
         <button wire:click="submit"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded transition cursor-pointer">
+            class="bg-gradient-to-r from-pink-500 via-purple-600 to-blue-500 hover:from-pink-600 hover:to-indigo-600 text-white font-semibold px-8 py-3 rounded-xl shadow-lg transition duration-300 text-lg cursor-pointer">
             Next
         </button>
     </div>
