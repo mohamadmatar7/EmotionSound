@@ -11,10 +11,10 @@
             </div>
     
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6">
-                <p><span class="font-semibold text-white/80">👤 Name:</span> {{ $result->name }}</p>
-                <p><span class="font-semibold text-white/80">🎂 Age:</span> {{ $result->age }}</p>
-                <p><span class="font-semibold text-white/80">⚧ Gender:</span> {{ ucfirst($result->gender) }}</p>
-                <p><span class="font-semibold text-white/80">🧠 Initial Emotion:</span> {{ ucfirst($result->emotional_state) }}</p>
+                <p><span class="font-semibold text-white/80">Name:</span> {{ $result->name }}</p>
+                <p><span class="font-semibold text-white/80">Age:</span> {{ $result->age }}</p>
+                <p><span class="font-semibold text-white/80">Gender:</span> {{ ucfirst($result->gender) }}</p>
+                <p><span class="font-semibold text-white/80">Initial Emotion:</span> {{ ucfirst($result->emotional_state) }}</p>
             </div>
 
             <div>
