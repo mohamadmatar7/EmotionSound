@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -9,49 +8,29 @@ class MusicController extends Controller
 {
     public function fetch($emotion)
     {
-        $query = urldecode($emotion);
+        $availableFiles = [
+            'angry', 'anxious', 'bored', 'calm', 'confused', 'curious', 'excited',
+            'grateful', 'happy', 'hopeful', 'intense', 'lonely', 'neutral',
+            'nostalgic', 'sad', 'ambient',
+        ];
 
-        $response = Http::get('https://freesound.org/apiv2/search/text/', [
-            'query' => $query,
-            'filter' => 'duration:[50 TO 60]',
-            'sort' => 'score',
-            'fields' => 'previews,name,url,duration',
-            'page_size' => 1,
-            'token' => config('services.freesound.key'),
-        ]);
+        // fallback if not found
+        $selected = 'neutral';
 
-        $data = $response->json();
-
-        // Default values
-        $preview = null;
-        $name = null;
-        $error = null;
-
-        if (!empty($data['results'])) {
-            $preview = $data['results'][0]['previews']['preview-hq-mp3'] ?? null;
-            $name = $data['results'][0]['name'] ?? 'Unknown';
-        } else {
-            // Try fallback: only first mood word
-            $firstMood = explode(' ', $query)[0];
-
-            $fallback = Http::get('https://freesound.org/apiv2/search/text/', [
-                'query' => $firstMood,
-                'filter' => 'duration:[40 TO 60]',
-                'sort' => 'score',
-                'fields' => 'previews,name,url,duration',
-                'page_size' => 1,
-                'token' => config('services.freesound.key'),
-            ])->json();
-
-            if (!empty($fallback['results'])) {
-                $preview = $fallback['results'][0]['previews']['preview-hq-mp3'] ?? null;
-                $name = $fallback['results'][0]['name'] ?? 'Unknown';
-                $emotion = $firstMood; // update for the view
-            } else {
-                $error = "No sound found for this mood.";
+        foreach (explode(' ', $emotion) as $word) {
+            if (in_array($word, $availableFiles)) {
+                $selected = $word;
+                break;
             }
         }
 
-        return view('result', compact('preview', 'name', 'emotion', 'error'));
+        $musicPath = asset("music/{$selected}.mp3");
+
+        return view('result', [
+            'preview' => $musicPath,
+            'name' => ucfirst($selected) . ".mp3",
+            'emotion' => $selected,
+            'error' => null,
+        ]);
     }
 }
