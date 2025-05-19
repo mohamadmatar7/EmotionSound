@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\MusicController;
 use App\Models\EmotionResult;
+use Illuminate\Support\Str;
 
 
 
@@ -24,27 +25,51 @@ Route::post('/feedback', function (Request $request) {
     return redirect('/')->with('message', 'Thanks for your feedback!');
 });
 
+
 Route::post('/chat-reply', function (Request $request) {
     $message = strtolower($request->input('user_message'));
 
-    // VERY simple keyword logic
+    $keywordsToEmotions = [
+        'relax' => 'calm',
+        'calm' => 'calm',
+        'peace' => 'calm',
+        'sad' => 'sad',
+        'cry' => 'sad',
+        'happy' => 'happy',
+        'fun' => 'happy',
+        'angry' => 'angry',
+        'mad' => 'angry',
+        'intense' => 'intense',
+        'nostalgic' => 'nostalgic',
+        'miss' => 'nostalgic',
+        'alone' => 'lonely',
+        'lonely' => 'lonely',
+        'hope' => 'hopeful',
+        'excited' => 'excited',
+        'grateful' => 'grateful',
+        'bored' => 'bored',
+        'curious' => 'curious',
+        'confused' => 'confused',
+        'anxious' => 'anxious',
+        'ambient' => 'ambient',
+        'neutral' => 'neutral',
+    ];
+
     $newEmotion = 'neutral';
     $response = "Let me suggest something different...";
 
-    if (str_contains($message, 'relax') || str_contains($message, 'calm')) {
-        $newEmotion = 'sad';
-        $response = "How about something calmer and softer?";
-    } elseif (str_contains($message, 'happy') || str_contains($message, 'fun')) {
-        $newEmotion = 'happy';
-        $response = "Got it! Here's something with more positive energy.";
-    } elseif (str_contains($message, 'angry') || str_contains($message, 'intense')) {
-        $newEmotion = 'intense';
-        $response = "Alright, here's something with stronger vibes.";
+    foreach ($keywordsToEmotions as $keyword => $emotion) {
+        if (Str::contains($message, $keyword)) {
+            $newEmotion = $emotion;
+            $response = "Okay! Let’s try something that matches how you feel: <strong>$emotion</strong>.";
+            break;
+        }
     }
 
     return redirect('/music/' . $newEmotion)
         ->with('chat_response', $response);
 });
+
 
 
 Route::get('/music/{emotion}', [MusicController::class, 'fetch']);
