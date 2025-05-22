@@ -1,8 +1,8 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 
 class MusicController extends Controller
 {
@@ -14,10 +14,9 @@ class MusicController extends Controller
             'nostalgic', 'sad', 'ambient',
         ];
 
-        // fallback if not found
         $selected = 'neutral';
 
-        foreach (explode(' ', $emotion) as $word) {
+        foreach (explode('+', $emotion) as $word) {
             if (in_array($word, $availableFiles)) {
                 $selected = $word;
                 break;
