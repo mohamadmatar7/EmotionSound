@@ -6,9 +6,14 @@ use App\Http\Controllers\MusicController;
 use App\Models\EmotionResult;
 use Illuminate\Support\Str;
 
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+
 Route::get('/', function () {
-    return view('welcome');
+    return view('chat-home');
 });
+
 
 Route::get('/result', function () {
     $emotion = session('emotion', 'neutral');
@@ -20,21 +25,30 @@ Route::post('/feedback', function (Request $request) {
         session(['emotion' => $request->input('emotion')]);
         return redirect('/result')->with('show_chat', true);
     }
-    return redirect('/')->with('message', 'Thanks for your feedback!');
+
+    return redirect('/result?thanks=true'); // <-- key change
 });
+
 
 
 Route::post('/chat-reply', function (Request $request) {
     $message = strtolower($request->input('user_message'));
 
     $keywordsToEmotions = [
-        'relax' => 'calm', 'calm' => 'calm', 'peace' => 'calm',
-        'sad' => 'sad', 'cry' => 'sad',
-        'happy' => 'happy', 'fun' => 'happy',
-        'angry' => 'angry', 'mad' => 'angry',
+        'relax' => 'calm',
+        'calm' => 'calm',
+        'peace' => 'calm',
+        'sad' => 'sad',
+        'cry' => 'sad',
+        'happy' => 'happy',
+        'fun' => 'happy',
+        'angry' => 'angry',
+        'mad' => 'angry',
         'intense' => 'intense',
-        'nostalgic' => 'nostalgic', 'miss' => 'nostalgic',
-        'alone' => 'lonely', 'lonely' => 'lonely',
+        'nostalgic' => 'nostalgic',
+        'miss' => 'nostalgic',
+        'alone' => 'lonely',
+        'lonely' => 'lonely',
         'hope' => 'hopeful',
         'excited' => 'excited',
         'grateful' => 'grateful',

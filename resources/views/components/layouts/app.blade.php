@@ -12,7 +12,8 @@
 
     {{-- Tailwind --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
+    @livewireStyles
+
 </head>
 <body class="bg-gradient-to-br from-gray-900 via-indigo-900 to-gray-800  min-h-screen font-sans flex flex-col justify-center items-center p-6"
 >
@@ -50,6 +51,7 @@
         {{-- Step Title --}}
         {{ $slot }}
     </div>
+    @livewireScripts
 
 </body>
 </html>

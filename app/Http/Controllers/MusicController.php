@@ -9,9 +9,22 @@ class MusicController extends Controller
     public function fetch($emotion)
     {
         $availableFiles = [
-            'angry', 'anxious', 'bored', 'calm', 'confused', 'curious', 'excited',
-            'grateful', 'happy', 'hopeful', 'intense', 'lonely', 'neutral',
-            'nostalgic', 'sad', 'ambient',
+            'angry',
+            'anxious',
+            'bored',
+            'calm',
+            'confused',
+            'curious',
+            'excited',
+            'grateful',
+            'happy',
+            'hopeful',
+            'intense',
+            'lonely',
+            'neutral',
+            'nostalgic',
+            'sad',
+            'ambient',
         ];
 
         $selected = 'neutral';
@@ -23,12 +36,11 @@ class MusicController extends Controller
             }
         }
 
-        $musicPath = asset("music/{$selected}.mp3");
-
         return view('result', [
-            'preview' => $musicPath,
+            'preview' => asset("music/{$selected}.mp3"),
             'name' => ucfirst($selected) . ".mp3",
-            'emotion' => $selected,
+            'emotion' => $emotion,
+            'primary' => $selected,
             'error' => null,
         ]);
     }
